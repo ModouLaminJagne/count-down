@@ -56,7 +56,7 @@
     <main class="app">
       <h1>Countdown Demo</h1>
       <div>Remaining time</div>
-      <div id="time" aria-live="polite">03:00</div>
+      <div id="time" aria-live="polite" aria-label="Timer display">03:00</div>
       <div class="controls">
         <label for="minutes">Minutes</label>
         <input
@@ -103,11 +103,13 @@
           timerId = null;
         }
         deadlineMs = null;
+        startBtn.disabled = false;
       }
 
       function getInputMinutes() {
         const parsed = Number(minutesInput.value);
         if (!Number.isFinite(parsed) || parsed < 1) {
+          minutesInput.value = String(DEFAULT_MINUTES);
           return DEFAULT_MINUTES;
         }
         return Math.floor(parsed);
@@ -145,6 +147,7 @@
 
         deadlineMs = Date.now() + remainingSeconds * 1000;
         timerId = setInterval(tick, 1000);
+        startBtn.disabled = true;
         tick();
       });
 

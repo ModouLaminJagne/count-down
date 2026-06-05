@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Countdown Demo</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        display: grid;
+        place-items: center;
+        min-height: 100vh;
+        margin: 0;
+        background: #f5f6f8;
+      }
+
+      .app {
+        background: #fff;
+        padding: 1.5rem;
+        border-radius: 0.75rem;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        width: min(92vw, 360px);
+      }
+
+      .controls {
+        display: grid;
+        gap: 0.75rem;
+      }
+
+      label {
+        font-size: 0.9rem;
+      }
+
+      input,
+      button {
+        width: 100%;
+        padding: 0.6rem;
+        font-size: 1rem;
+      }
+
+      #time {
+        font-size: 2.1rem;
+        text-align: center;
+        margin: 0.5rem 0 1rem;
+        font-weight: 700;
+      }
+
+      .buttons {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <h1>Countdown Demo</h1>
+      <div id="timer-label">Remaining time</div>
+      <div id="time" aria-live="polite" aria-labelledby="timer-label">03:00</div>
+      <div class="controls">
+        <label for="minutes">Minutes</label>
+        <input
+          id="minutes"
+          type="number"
+          min="1"
+          step="1"
+          value="3"
+          aria-describedby="minutes-help"
+        />
+        <small id="minutes-help">Enter whole minutes (minimum 1).</small>
+        <div class="buttons">
+          <button id="start" type="button">Start</button>
+          <button id="reset" type="button">Reset</button>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      const timeDisplay = document.getElementById('time');
+      const minutesInput = document.getElementById('minutes');
+      const startBtn = document.getElementById('start');
+      const resetBtn = document.getElementById('reset');
+
+      const DEFAULT_MINUTES = 3;
+      let remainingSeconds = DEFAULT_MINUTES * 60;
+      let timerId = null;
+      let deadlineMs = null;
+
+      function format(seconds) {
+        const mins = Math.floor(seconds / 60)
+          .toString()
+          .padStart(2, '0');
+        const secs = (seconds % 60).toString().padStart(2, '0');
+        return `${mins}:${secs}`;
+      }
+
+      function render() {
+        timeDisplay.textContent = format(remainingSeconds);
+      }
+
+      function stopTimer() {
+        if (timerId) {
+          clearInterval(timerId);
+          timerId = null;
+        }
+        deadlineMs = null;
+        startBtn.disabled = false;
+      }
+
+      function getInputMinutes() {
+        const parsed = Number(minutesInput.value);
+        if (!Number.isInteger(parsed) || parsed < 1) {
+          minutesInput.value = String(DEFAULT_MINUTES);
+          return DEFAULT_MINUTES;
+        }
+        return parsed;
+      }
+
+      function reset() {
+        stopTimer();
+        remainingSeconds = getInputMinutes() * 60;
+        render();
+      }
+
+      function tick() {
+        if (deadlineMs === null) {
+          stopTimer();
+          return;
+        }
+
+        remainingSeconds = Math.max(
+          0,
+          Math.ceil((deadlineMs - Date.now()) / 1000)
+        );
+        render();
+
+        if (remainingSeconds <= 0) {
+          stopTimer();
+        }
+      }
+
+      startBtn.addEventListener('click', () => {
+        if (remainingSeconds <= 0) {
+          remainingSeconds = getInputMinutes() * 60;
+          render();
+        }
+
+        deadlineMs = Date.now() + remainingSeconds * 1000;
+        timerId = setInterval(tick, 1000);
+        startBtn.disabled = true;
+        tick();
+      });
+
+      resetBtn.addEventListener('click', reset);
+      minutesInput.addEventListener('change', reset);
+
+      render();
+    </script>
+  </body>
+</html>

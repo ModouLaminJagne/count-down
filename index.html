@@ -145,6 +145,7 @@
 
         deadlineMs = Date.now() + remainingSeconds * 1000;
         timerId = setInterval(tick, 1000);
+        tick();
       });
 
       resetBtn.addEventListener('click', reset);

@@ -3,88 +3,348 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Countdown Demo</title>
+    <title>Countdown Timer</title>
     <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
       body {
-        font-family: Arial, sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
         display: grid;
         place-items: center;
         min-height: 100vh;
-        margin: 0;
-        background: #f5f6f8;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 1rem;
+        overflow: hidden;
       }
 
       .app {
-        background: #fff;
-        padding: 1.5rem;
-        border-radius: 0.75rem;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-        width: min(92vw, 360px);
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 2.5rem 2rem;
+        border-radius: 2rem;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 0 1px rgba(0, 0, 0, 0.1);
+        width: min(95vw, 420px);
+        animation: slideUp 0.6s ease-out;
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #1a202c;
+        margin-bottom: 0.25rem;
+        text-align: center;
+      }
+
+      .subtitle {
+        font-size: 0.85rem;
+        color: #718096;
+        text-align: center;
+        margin-bottom: 2rem;
+        font-weight: 500;
+      }
+
+      .timer-container {
+        position: relative;
+        width: 240px;
+        height: 240px;
+        margin: 0 auto 2.5rem;
+      }
+
+      svg {
+        width: 100%;
+        height: 100%;
+        transform: rotate(-90deg);
+      }
+
+      .timer-circle-bg {
+        fill: none;
+        stroke: #e2e8f0;
+        stroke-width: 8;
+      }
+
+      .timer-circle-progress {
+        fill: none;
+        stroke: url(#gradient);
+        stroke-width: 8;
+        stroke-linecap: round;
+        transition: stroke-dashoffset 0.2s linear;
+      }
+
+      .timer-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+      }
+
+      #time {
+        font-size: 3.5rem;
+        font-weight: 800;
+        color: #667eea;
+        letter-spacing: -0.02em;
+        line-height: 1;
+      }
+
+      .time-label {
+        font-size: 0.8rem;
+        color: #a0aec0;
+        margin-top: 0.5rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
       }
 
       .controls {
         display: grid;
-        gap: 0.75rem;
+        gap: 1.25rem;
+        margin-bottom: 1.5rem;
       }
 
       label {
         font-size: 0.9rem;
+        font-weight: 600;
+        color: #2d3748;
+        display: block;
+        margin-bottom: 0.5rem;
       }
 
-      input,
-      button {
+      input {
         width: 100%;
-        padding: 0.6rem;
+        padding: 0.875rem 1.125rem;
         font-size: 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 0.875rem;
+        background: #f7fafc;
+        color: #1a202c;
+        font-weight: 500;
+        transition: all 0.2s ease;
       }
 
-      #time {
-        font-size: 2.1rem;
-        text-align: center;
-        margin: 0.5rem 0 1rem;
-        font-weight: 700;
+      input:focus {
+        outline: none;
+        border-color: #667eea;
+        background: #fff;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      input:disabled {
+        background: #edf2f7;
+        color: #a0aec0;
+        cursor: not-allowed;
+      }
+
+      small {
+        font-size: 0.8rem;
+        color: #718096;
+        display: block;
+        margin-top: 0.5rem;
       }
 
       .buttons {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 0.5rem;
+        gap: 1rem;
+      }
+
+      button {
+        padding: 1rem;
+        font-size: 1rem;
+        font-weight: 600;
+        border: none;
+        border-radius: 0.875rem;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-size: 0.95rem;
+        position: relative;
+        overflow: hidden;
+      }
+
+      #start {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      }
+
+      #start:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+      }
+
+      #start:active:not(:disabled) {
+        transform: translateY(0);
+      }
+
+      #start:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      #reset {
+        background: #f7fafc;
+        color: #667eea;
+        border: 2px solid #667eea;
+        font-weight: 700;
+      }
+
+      #reset:hover:not(:disabled) {
+        background: #667eea;
+        color: white;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        transform: translateY(-2px);
+      }
+
+      #reset:active:not(:disabled) {
+        transform: translateY(0);
+      }
+
+      #timer-label {
+        display: none;
+      }
+
+      .timer-running #time {
+        animation: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
+
+      @keyframes pulse {
+        0%, 100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.85;
+        }
+      }
+
+      .timer-complete #time {
+        animation: bounce 0.6s ease-out;
+      }
+
+      @keyframes bounce {
+        0%, 100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+      }
+
+      @media (max-width: 480px) {
+        .app {
+          padding: 2rem 1.5rem;
+        }
+
+        h1 {
+          font-size: 1.5rem;
+        }
+
+        .timer-container {
+          width: 200px;
+          height: 200px;
+          margin-bottom: 2rem;
+        }
+
+        #time {
+          font-size: 2.8rem;
+        }
+
+        .buttons {
+          gap: 0.75rem;
+        }
+
+        button {
+          padding: 0.875rem;
+          font-size: 0.9rem;
+        }
       }
     </style>
   </head>
   <body>
     <main class="app">
-      <h1>Countdown Demo</h1>
-      <div id="timer-label">Remaining time</div>
-      <div id="time" aria-live="polite" aria-labelledby="timer-label">03:00</div>
+      <h1>Countdown Timer</h1>
+      <p class="subtitle">Stay focused and on track</p>
+
+      <div class="timer-container">
+        <svg viewBox="0 0 100 100">
+          <defs>
+            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color: #667eea; stop-opacity: 1" />
+              <stop offset="100%" style="stop-color: #764ba2; stop-opacity: 1" />
+            </linearGradient>
+          </defs>
+          <circle class="timer-circle-bg" cx="50" cy="50" r="45"></circle>
+          <circle
+            class="timer-circle-progress"
+            cx="50"
+            cy="50"
+            r="45"
+            id="progress-ring"
+          ></circle>
+        </svg>
+        <div class="timer-text">
+          <div id="timer-label" aria-live="polite" aria-atomic="true">
+            Remaining time
+          </div>
+          <div id="time">03:00</div>
+          <div class="time-label">minutes</div>
+        </div>
+      </div>
+
       <div class="controls">
-        <label for="minutes">Minutes</label>
-        <input
-          id="minutes"
-          type="number"
-          min="1"
-          step="1"
-          value="3"
-          aria-describedby="minutes-help"
-        />
-        <small id="minutes-help">Enter whole minutes (minimum 1).</small>
+        <div>
+          <label for="minutes">Duration (minutes)</label>
+          <input
+            id="minutes"
+            type="number"
+            min="1"
+            step="1"
+            value="3"
+            aria-describedby="minutes-help"
+          />
+          <small id="minutes-help">Enter a number from 1 to 999</small>
+        </div>
         <div class="buttons">
-          <button id="start" type="button">Start</button>
-          <button id="reset" type="button">Reset</button>
+          <button id="start" type="button">▶ Start</button>
+          <button id="reset" type="button">↻ Reset</button>
         </div>
       </div>
     </main>
 
     <script>
       const timeDisplay = document.getElementById('time');
+      const progressRing = document.getElementById('progress-ring');
       const minutesInput = document.getElementById('minutes');
       const startBtn = document.getElementById('start');
       const resetBtn = document.getElementById('reset');
+      const app = document.querySelector('.app');
 
       const DEFAULT_MINUTES = 3;
+      const CIRCLE_RADIUS = 45;
+      const CIRCLE_CIRCUMFERENCE = 2 * Math.PI * CIRCLE_RADIUS;
+
       let remainingSeconds = DEFAULT_MINUTES * 60;
+      let totalSeconds = DEFAULT_MINUTES * 60;
       let timerId = null;
       let deadlineMs = null;
+
+      progressRing.style.strokeDasharray = CIRCLE_CIRCUMFERENCE;
+      progressRing.style.strokeDashoffset = CIRCLE_CIRCUMFERENCE;
 
       function format(seconds) {
         const mins = Math.floor(seconds / 60)
@@ -94,8 +354,15 @@
         return `${mins}:${secs}`;
       }
 
+      function updateProgress() {
+        const progress = 1 - remainingSeconds / totalSeconds;
+        const offset = CIRCLE_CIRCUMFERENCE * (1 - progress);
+        progressRing.style.strokeDashoffset = offset;
+      }
+
       function render() {
         timeDisplay.textContent = format(remainingSeconds);
+        updateProgress();
       }
 
       function stopTimer() {
@@ -105,6 +372,14 @@
         }
         deadlineMs = null;
         startBtn.disabled = false;
+        minutesInput.disabled = false;
+        app.classList.remove('timer-running');
+
+        if (remainingSeconds === 0) {
+          app.classList.add('timer-complete');
+          setTimeout(() => app.classList.remove('timer-complete'), 600);
+          playCompletionSound();
+        }
       }
 
       function getInputMinutes() {
@@ -119,7 +394,9 @@
       function reset() {
         stopTimer();
         remainingSeconds = getInputMinutes() * 60;
+        totalSeconds = remainingSeconds;
         render();
+        app.classList.remove('timer-complete');
       }
 
       function tick() {
@@ -139,15 +416,38 @@
         }
       }
 
+      function playCompletionSound() {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const now = audioContext.currentTime;
+        
+        const notes = [523.25, 659.25, 783.99];
+        notes.forEach((freq, i) => {
+          const osc = audioContext.createOscillator();
+          const gain = audioContext.createGain();
+          osc.connect(gain);
+          gain.connect(audioContext.destination);
+          
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0.3, now + i * 0.15);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.15 + 0.2);
+          
+          osc.start(now + i * 0.15);
+          osc.stop(now + i * 0.15 + 0.2);
+        });
+      }
+
       startBtn.addEventListener('click', () => {
         if (remainingSeconds <= 0) {
           remainingSeconds = getInputMinutes() * 60;
+          totalSeconds = remainingSeconds;
           render();
         }
 
         deadlineMs = Date.now() + remainingSeconds * 1000;
-        timerId = setInterval(tick, 1000);
+        timerId = setInterval(tick, 100);
         startBtn.disabled = true;
+        minutesInput.disabled = true;
+        app.classList.add('timer-running');
         tick();
       });
 

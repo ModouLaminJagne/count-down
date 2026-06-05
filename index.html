@@ -55,9 +55,8 @@
   <body>
     <main class="app">
       <h1>Countdown Demo</h1>
-      <div id="time" aria-live="polite" aria-label="Remaining countdown time">
-        03:00
-      </div>
+      <div>Remaining time</div>
+      <div id="time" aria-live="polite">03:00</div>
       <div class="controls">
         <label for="minutes">Minutes</label>
         <input
@@ -81,7 +80,8 @@
       const startBtn = document.getElementById('start');
       const resetBtn = document.getElementById('reset');
 
-      let remainingSeconds = 180;
+      const DEFAULT_MINUTES = 3;
+      let remainingSeconds = DEFAULT_MINUTES * 60;
       let timerId = null;
       let deadlineMs = null;
 
@@ -108,7 +108,7 @@
       function getInputMinutes() {
         const parsed = Number(minutesInput.value);
         if (!Number.isFinite(parsed) || parsed < 1) {
-          return 3;
+          return DEFAULT_MINUTES;
         }
         return Math.floor(parsed);
       }

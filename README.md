@@ -4,7 +4,7 @@ A simple countdown demo app.
 
 ## Run
 
-Open `/tmp/workspace/ModouLaminJagne/count-down/index.html` in a browser.
+Open `index.html` in a browser.
 
 ## Usage
 

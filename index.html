@@ -245,6 +245,82 @@
         }
       }
 
+      /* Completion message styles */
+      .completion-message {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+        margin-top: 1.25rem;
+        text-align: center;
+        border-radius: 1rem;
+        background: linear-gradient(180deg, rgba(102,126,234,0.95), rgba(118,75,162,0.95));
+        color: #fff;
+        transform: scale(0.97);
+        opacity: 0;
+        transition: opacity 360ms ease, transform 360ms ease;
+        position: relative;
+        overflow: visible;
+      }
+
+      .completion-message.show {
+        opacity: 1;
+        transform: scale(1);
+        animation: pop 520ms cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+
+      .message-title {
+        font-size: 1.6rem;
+        font-weight: 900;
+        line-height: 1;
+        margin-bottom: 0.25rem;
+        background: linear-gradient(90deg, #fff, rgba(255,255,255,0.85));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      .message-body {
+        font-size: 1rem;
+        font-weight: 700;
+        color: rgba(255,255,255,0.95);
+      }
+
+      .message-body a {
+        color: #fff;
+        text-decoration: underline;
+      }
+
+      @keyframes pop {
+        0% { transform: scale(0.85); opacity: 0; }
+        60% { transform: scale(1.05); opacity: 1; }
+        100% { transform: scale(1); opacity: 1; }
+      }
+
+      /* simple confetti */
+      .confetti-container {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        overflow: hidden;
+      }
+
+      .confetti-piece {
+        position: absolute;
+        top: -10%;
+        border-radius: 2px;
+        opacity: 0.9;
+        animation: confetti-fall 3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+      }
+
+      @keyframes confetti-fall {
+        to {
+          transform: translateY(120vh) rotate(360deg);
+          opacity: 0.4;
+        }
+      }
+
       @media (max-width: 480px) {
         .app {
           padding: 2rem 1.5rem;
@@ -324,6 +400,16 @@
           <button id="reset" type="button">↻ Reset</button>
         </div>
       </div>
+      <!-- Completion message (hidden until timer ends) -->
+      <div id="completion-message" class="completion-message" hidden aria-live="polite">
+        <div class="message-inner">
+          <div class="message-title">Congratulations</div>
+          <div class="message-body">
+            SOSHSA is live — <a href="https://www.soshsa.com" target="_blank" rel="noopener">www.soshsa.com</a>
+          </div>
+        </div>
+        <div id="confetti-container" class="confetti-container" aria-hidden="true"></div>
+      </div>
     </main>
 
     <script>
@@ -379,6 +465,7 @@
           app.classList.add('timer-complete');
           setTimeout(() => app.classList.remove('timer-complete'), 600);
           playCompletionSound();
+          showCompletionMessage();
         }
       }
 
@@ -395,8 +482,59 @@
         stopTimer();
         remainingSeconds = getInputSeconds();
         totalSeconds = remainingSeconds;
+        // restore UI when resetting from completion
+        hideCompletionMessage();
         render();
         app.classList.remove('timer-complete');
+      }
+
+      /* Completion UI and confetti */
+      function showCompletionMessage() {
+        const timerContainer = document.querySelector('.timer-container');
+        const controls = document.querySelector('.controls');
+        const msg = document.getElementById('completion-message');
+        if (timerContainer) timerContainer.style.display = 'none';
+        if (controls) controls.style.display = 'none';
+        if (msg) {
+          msg.hidden = false;
+          // trigger animation
+          requestAnimationFrame(() => msg.classList.add('show'));
+        }
+        createConfetti();
+      }
+
+      function hideCompletionMessage() {
+        const timerContainer = document.querySelector('.timer-container');
+        const controls = document.querySelector('.controls');
+        const msg = document.getElementById('completion-message');
+        if (timerContainer) timerContainer.style.display = '';
+        if (controls) controls.style.display = '';
+        if (msg) {
+          msg.classList.remove('show');
+          msg.hidden = true;
+        }
+        // clear any confetti
+        const confetti = document.getElementById('confetti-container');
+        if (confetti) confetti.innerHTML = '';
+      }
+
+      function createConfetti() {
+        const container = document.getElementById('confetti-container');
+        if (!container) return;
+        const colors = ['#FF6B6B', '#FFD93D', '#6BCB77', '#4D96FF', '#9B6BFF'];
+        const pieces = 24;
+        for (let i = 0; i < pieces; i++) {
+          const el = document.createElement('div');
+          el.className = 'confetti-piece';
+          el.style.background = colors[i % colors.length];
+          el.style.left = Math.random() * 100 + '%';
+          el.style.width = el.style.height = Math.floor(6 + Math.random() * 10) + 'px';
+          el.style.opacity = String(0.9 - Math.random() * 0.4);
+          el.style.transform = `rotate(${Math.random() * 360}deg)`;
+          container.appendChild(el);
+        }
+        // remove confetti after animation
+        setTimeout(() => { if (container) container.innerHTML = ''; }, 3500);
       }
 
       function tick() {

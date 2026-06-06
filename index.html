@@ -302,22 +302,22 @@
             Remaining time
           </div>
           <div id="time">03:00</div>
-          <div class="time-label">minutes</div>
+          <div class="time-label">seconds</div>
         </div>
       </div>
 
       <div class="controls">
         <div>
-          <label for="minutes">Duration (minutes)</label>
+          <label for="seconds">Duration (seconds)</label>
           <input
-            id="minutes"
+            id="seconds"
             type="number"
             min="1"
             step="1"
-            value="3"
-            aria-describedby="minutes-help"
+            value="180"
+            aria-describedby="seconds-help"
           />
-          <small id="minutes-help">Enter a number from 1 to 999</small>
+          <small id="seconds-help">Enter a number of seconds (min 1)</small>
         </div>
         <div class="buttons">
           <button id="start" type="button">▶ Start</button>
@@ -329,17 +329,17 @@
     <script>
       const timeDisplay = document.getElementById('time');
       const progressRing = document.getElementById('progress-ring');
-      const minutesInput = document.getElementById('minutes');
+      const secondsInput = document.getElementById('seconds');
       const startBtn = document.getElementById('start');
       const resetBtn = document.getElementById('reset');
       const app = document.querySelector('.app');
 
-      const DEFAULT_MINUTES = 3;
+      const DEFAULT_SECONDS = 180;
       const CIRCLE_RADIUS = 45;
       const CIRCLE_CIRCUMFERENCE = 2 * Math.PI * CIRCLE_RADIUS;
 
-      let remainingSeconds = DEFAULT_MINUTES * 60;
-      let totalSeconds = DEFAULT_MINUTES * 60;
+      let remainingSeconds = DEFAULT_SECONDS;
+      let totalSeconds = DEFAULT_SECONDS;
       let timerId = null;
       let deadlineMs = null;
 
@@ -372,7 +372,7 @@
         }
         deadlineMs = null;
         startBtn.disabled = false;
-        minutesInput.disabled = false;
+        secondsInput.disabled = false;
         app.classList.remove('timer-running');
 
         if (remainingSeconds === 0) {
@@ -382,18 +382,18 @@
         }
       }
 
-      function getInputMinutes() {
-        const parsed = Number(minutesInput.value);
+      function getInputSeconds() {
+        const parsed = Number(secondsInput.value);
         if (!Number.isInteger(parsed) || parsed < 1) {
-          minutesInput.value = String(DEFAULT_MINUTES);
-          return DEFAULT_MINUTES;
+          secondsInput.value = String(DEFAULT_SECONDS);
+          return DEFAULT_SECONDS;
         }
         return parsed;
       }
 
       function reset() {
         stopTimer();
-        remainingSeconds = getInputMinutes() * 60;
+        remainingSeconds = getInputSeconds();
         totalSeconds = remainingSeconds;
         render();
         app.classList.remove('timer-complete');
@@ -438,7 +438,7 @@
 
       startBtn.addEventListener('click', () => {
         if (remainingSeconds <= 0) {
-          remainingSeconds = getInputMinutes() * 60;
+          remainingSeconds = getInputSeconds();
           totalSeconds = remainingSeconds;
           render();
         }
@@ -446,13 +446,13 @@
         deadlineMs = Date.now() + remainingSeconds * 1000;
         timerId = setInterval(tick, 100);
         startBtn.disabled = true;
-        minutesInput.disabled = true;
+        secondsInput.disabled = true;
         app.classList.add('timer-running');
         tick();
       });
 
       resetBtn.addEventListener('click', reset);
-      minutesInput.addEventListener('change', reset);
+      secondsInput.addEventListener('change', reset);
 
       render();
     </script>
